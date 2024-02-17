@@ -1,6 +1,9 @@
 # Use the latest Node.js image as base image
 FROM node:20
 
+# Install Nest CLI globally
+RUN npm install -g @nestjs/cli
+
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
@@ -11,7 +14,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the source code to the working directory
-COPY . .
+COPY . ./usr/src/app
 
 # Expose the port that the app will run on
 EXPOSE 3000
