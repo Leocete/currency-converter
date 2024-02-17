@@ -16,7 +16,7 @@ These instructions will guide you on how to set up and run the project on your l
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
+git clone https://github.com/Leocete/currency-converter.git
 ```
 
 2. Navigate to the project directory
