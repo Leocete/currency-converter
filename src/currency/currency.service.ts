@@ -4,6 +4,10 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { CurrencyConvertDto } from './dto/currency-convert.dto';
 import { ConfigService } from '@nestjs/config';
+import {
+  FetchExchangeRatesException,
+  InvalidCurrencyPairException,
+} from './errors/currency.exceptions';
 
 interface ICurrencyPairExchangeRate {
   currencyCodeA: number;
@@ -50,7 +54,7 @@ export class CurrencyService {
       return data;
     } catch (error) {
       console.error(error);
-      throw new Error(`Failed to fetch exchange rates - ${error.message}`);
+      throw new FetchExchangeRatesException(error.message);
     }
   }
 
@@ -73,9 +77,7 @@ export class CurrencyService {
     );
 
     if (!currencyPairExchangeRate) {
-      throw new Error(
-        `Invalid source or target currency codes, Source currency code: ${source}, Target currency code: ${target}`,
-      );
+      throw new InvalidCurrencyPairException(source, target);
     }
     return currencyPairExchangeRate;
   }
