@@ -4,6 +4,10 @@ import { HttpModule, HttpService } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import {
+  FetchExchangeRatesException,
+  InvalidCurrencyPairException,
+} from './errors/currency.exceptions';
 
 describe('CurrencyService', () => {
   let currencyService: CurrencyService;
@@ -86,26 +90,18 @@ describe('CurrencyService', () => {
         .fn()
         .mockRejectedValue(new Error('API error'));
 
-      try {
-        await currencyService.fetchExchangeRates();
-      } catch (error) {
-        expect(error.message).toEqual(
-          'Failed to fetch exchange rates - API error',
-        );
-      }
+      await expect(currencyService.fetchExchangeRates()).rejects.toBeInstanceOf(
+        FetchExchangeRatesException,
+      );
     });
 
     it('should throw an error if fetch throws error', async () => {
       cacheManager.get = jest.fn().mockReturnValue(null);
       httpService.axiosRef.get = jest.fn().mockReturnValue({});
 
-      try {
-        await currencyService.fetchExchangeRates();
-      } catch (error) {
-        expect(error.message).toEqual(
-          'Failed to fetch exchange rates - Unexpected response from Monobank',
-        );
-      }
+      await expect(currencyService.fetchExchangeRates()).rejects.toBeInstanceOf(
+        FetchExchangeRatesException,
+      );
     });
   });
 
@@ -121,18 +117,14 @@ describe('CurrencyService', () => {
       expect(currencyPairExchangeRate).toEqual(mockExchangeRates[0]);
     });
 
-    it('should throw an error', async () => {
+    it('should throw an error if no exchange rate pair found', async () => {
       currencyService.fetchExchangeRates = jest
         .fn()
         .mockReturnValue(mockExchangeRates);
 
-      try {
-        await currencyService.getCurrencyPairExchangeRate(1, 2);
-      } catch (error) {
-        expect(error.message).toEqual(
-          'Invalid source or target currency codes, Source currency code: 1, Target currency code: 2',
-        );
-      }
+      await expect(
+        currencyService.getCurrencyPairExchangeRate(1, 2),
+      ).rejects.toBeInstanceOf(InvalidCurrencyPairException);
     });
   });
 
