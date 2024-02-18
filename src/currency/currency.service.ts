@@ -29,7 +29,7 @@ export class CurrencyService {
   /**
    * Fetches the exchange rates from the Monobank API or cache if available.
    * @returns An array of exchange rates.
-   * @throws An error if the request to the Monobank API fails or if the response structure is unexpected. (TODO)
+   * @throws An error if the request to the Monobank API fails or if the response structure is unexpected.
    */
   async fetchExchangeRates(): Promise<ICurrencyPairExchangeRate[]> {
     try {
@@ -49,6 +49,11 @@ export class CurrencyService {
       // Used traditional axios approach, alternatively, you can use the Observable approach (firstValueFrom + pipe + catchError)
       // TODO: we could also add Monobank API response validation here, and throw an error if the response structure is not as expected
       const { data } = await this.httpService.axiosRef.get(apiUrl);
+
+      if (!data) {
+        throw new Error('Unexpected response from Monobank');
+      }
+
       await this.cacheManager.set(cacheKey, data, ttl);
 
       return data;

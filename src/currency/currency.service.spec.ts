@@ -80,8 +80,8 @@ describe('CurrencyService', () => {
       expect(exchangeRates).toEqual(mockExchangeRates);
     });
 
-    it('should throw an error', async () => {
-      cacheManager.get = jest.fn().mockReturnValue(mockExchangeRates);
+    it('should throw an error if fetch throws error', async () => {
+      cacheManager.get = jest.fn().mockReturnValue(null);
       httpService.axiosRef.get = jest
         .fn()
         .mockRejectedValue(new Error('API error'));
@@ -91,6 +91,19 @@ describe('CurrencyService', () => {
       } catch (error) {
         expect(error.message).toEqual(
           'Failed to fetch exchange rates - API error',
+        );
+      }
+    });
+
+    it('should throw an error if fetch throws error', async () => {
+      cacheManager.get = jest.fn().mockReturnValue(null);
+      httpService.axiosRef.get = jest.fn().mockReturnValue({});
+
+      try {
+        await currencyService.fetchExchangeRates();
+      } catch (error) {
+        expect(error.message).toEqual(
+          'Failed to fetch exchange rates - Unexpected response from Monobank',
         );
       }
     });
